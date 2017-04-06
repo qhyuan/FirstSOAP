@@ -1,11 +1,25 @@
 <beans xmlns="http://www.springframework.org/schema/beans" 
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
        xmlns:jaxws="http://cxf.apache.org/jaxws" 
-       xsi:schemaLocation=" http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
-    <jaxws:endpoint id="helloWorld" implementor="com.walle.firstsoap.service.HelloWorldImpl" address="/HelloWorld"/>
-    
-    <!--OR 使用Spring管理的bean
-        <bean id="hello" class="com.walle.firstsoap.service.HelloWorldImpl"/>
-        <jaxws:endpoint id="helloWorld" implementor="#hello" address="/HelloWorld" />
-    -->
+       xsi:schemaLocation=" http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans.xsd 
+       http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
+    <bean id="myPasswordCallback" class="com.walle.firstsoap.PasswordCallback"/>
+    <jaxws:endpoint id="helloWorld" implementor="com.walle.firstsoap.service.HelloWorldImpl" address="/HelloWorld">
+         
+        <jaxws:inInterceptors>
+            <bean class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor">
+                <constructor-arg>
+                    <map>
+                        <entry key="action" value="UsernameToken"/>
+                        <entry key="passwordType" value="PasswordDigest"/>
+                        <entry key="signaturePropFile" value="classpath:keyprop/Server_SignVerf.properties"/>
+                        <entry key="passwordCallbackRef">
+                            <ref bean="myPasswordCallback"/>
+                        </entry>
+                    </map>
+                </constructor-arg>
+            </bean>
+        </jaxws:inInterceptors>
+    </jaxws:endpoint>
 </beans>
